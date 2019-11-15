@@ -22,13 +22,13 @@ print(result)
 # this is just a simple format,this e-mail doesn't exist.
 smtpserver  = "smtp.gmail.com"
 sender_port = 587
-username  = "ece180raspberrypi@gmail.com"
-password  = "iwgtGC2018"
-sender 	  = "ece180raspberrypi@gmail.com"
-receiver  = ["ece180raspberrypi@gmail.com"]
-subject   = "[Susie_RPI]IP CHANGED"
+username  = "your email address"
+password  = "your password"
+sender 	  = "sender's email address"
+receiver  = ["receiver's email address"]
+subject   = "subject title"
 
-# file_path config
+# save the ip address in lastip.txt, if the ip doesn't change, no need to send notification
 file_path = "/root/rootcrons/lastip.txt"
 
 def sendEmail(msg):
@@ -37,6 +37,7 @@ def sendEmail(msg):
     smtp.ehlo()
     smtp.starttls()
     smtp.ehlo()
+    # if cannot receive email, uncomment the next line, it shows debug information
     # smtp.set_debuglevel(1)
     smtp.login(username, password)
     smtp.sendmail(sender, receiver, msgRoot)
