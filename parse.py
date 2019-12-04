@@ -18,6 +18,7 @@ def parse_seating(bt, pi, seating):
 	for line in bt_info:
 		pi_local[line[0]] = line[2:19]
 	for line in pi_info:
+		seating[pi_local[line[2]]] = line[0]
 		seating[line[0]] = pi_local[line[2]]
 	pi_info.close()
 	bt_info.close()
