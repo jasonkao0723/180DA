@@ -4,7 +4,7 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 GPIO.setup(21,GPIO.OUT)
 
-def localization(loc)
+def localization(loc):
 	for i in range(loc):
 		GPIO.output(21,GPIO.HIGH)
 		time.sleep(1)

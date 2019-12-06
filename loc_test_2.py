@@ -3,6 +3,7 @@ import subprocess
 import re
 import threading
 import bluetooth
+from led_test import localization
 
 row_num = 2
 col_num = 2
@@ -32,6 +33,8 @@ def acceptClient():
 		client_sock,address = server_sock.accept()
 		print ("Accepted connection from ",address)
 		data = client_sock.recv(1024)
+		if data.decode("utf-8") == "light":
+			localization(location)
 		print ("received [%s]" % data)
 		client_sock.close()
 		server_sock.close()
