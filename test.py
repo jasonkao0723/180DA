@@ -50,7 +50,7 @@ if master_seat == 0:
 	master_seat = col_num
 
 if location > col_num:
-	connectToServer(master_seat)
+	connectToServer(seat[str(master_seat)])
 elif location == 1:
 	acceptClient()
 else:
