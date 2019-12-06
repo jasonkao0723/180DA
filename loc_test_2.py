@@ -52,6 +52,9 @@ master_seat = location % row_num
 if master_seat == 0:
 	master_seat = col_num
 
+print("Location is : "+str(location)+ " Server: "+str(master_seat))
+
+
 if location > col_num:
 	connectToServer(seat[str(master_seat)])
 elif location == 1:
