@@ -1,4 +1,10 @@
-[TOC]
+* Boot up raspberry pi
+* Ssh to Raspberry pi
+* Setup /etc/wpa_supplicant/wpa_supplicant.conf
+* Add auto report ip function
+* How to run python script upon boot up
+* Set raspberry pi as wifi repeater
+* Reportip.py
 
 #### Boot up raspberry pi
 
