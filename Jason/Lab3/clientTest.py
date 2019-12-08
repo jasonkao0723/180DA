@@ -1,7 +1,8 @@
 import socket
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(('131.179.29.14', 8080))
-client.send("I am CLIENT\n".encode())
+client.connect(('131.179.34.72', 3947))
+text = "I am CLIENT\n"
+client.send(text.encode())
 from_server = client.recv(4096)
 client.close()
-print(from_server)
+print(from_server.decode())
