@@ -1,6 +1,12 @@
 import paho.mqtt.client as mqtt
 import RPi.GPIO
 import led_test
+import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
+import time
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+GPIO.setup(21,GPIO.OUT)
 
 MQTT_SERVER = "192.168.31.45"
 MQTT_PATH = "/home/pi/180DA/"
@@ -15,9 +21,13 @@ def on_connect(client, userdata, flags, rc):
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
     print(msg.topic+" "+str(msg.payload))
-    if msg.payload != None:
-      led_test.led()
-	# more callbacks, etc
+    if str(msg.payload) == "light":
+      print ("LED on")
+      GPIO.output(21,GPIO.HIGH)
+      time.sleep(1)
+      print ("LED off")
+      GPIO.output(21,GPIO.LOW)
+      time.sleep(1)	# more callbacks, etc
 
 client = mqtt.Client()
 client.on_connect = on_connect
