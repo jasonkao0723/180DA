@@ -2,7 +2,7 @@ import paho.mqtt.client as mqtt
 import RPi.GPIO
 import led_test
 
-MQTT_SERVER = "131.179.15.64"
+MQTT_SERVER = "192.168.31.45"
 MQTT_PATH = "/home/pi/180DA/"
 
 # The callback for when the client receives a connect response from the server.
