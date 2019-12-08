@@ -22,17 +22,13 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     print(msg.topic+" "+str(msg.payload))
     if str(msg.payload) == "light":
-<<<<<<< HEAD
-      led_test.led()
 	# more callbacks, etc
-=======
       print ("LED on")
       GPIO.output(21,GPIO.HIGH)
       time.sleep(1)
       print ("LED off")
       GPIO.output(21,GPIO.LOW)
       time.sleep(1)	# more callbacks, etc
->>>>>>> a033688d7990210dcb02c03276547a956b4fa21d
 
 client = mqtt.Client()
 client.on_connect = on_connect
