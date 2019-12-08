@@ -6,11 +6,22 @@ GPIO.setwarnings(False)
 GPIO.setup(21,GPIO.OUT)
 
 def light():
-	while(True):
-		print("LED on")
-		as = [[0 0],[0 1]]
-		time.sleep(0.1)
-		time.sleep(0.1)
+		pat_1 = [[1,0],[0,0]]
+		pat_2 = [[0,1],[0,0]]
+		pat_3 = [[0,0],[1,0]]
+		pat_4 = [[0,0],[0,1]]
+
+def light_1():
+		pat_1 = [[1,1],[1,1]]
+		pat_2 = [[1,1],[1,1]]
+		pat_3 = [[1,1],[1,1]]
+		pat_4 = [[1,1],[1,1]]
+
+def light_2():
+		pat_1 = [[0,0],[0,0]]
+		pat_2 = [[0,0],[0,0]]
+		pat_3 = [[0,0],[0,0]]
+		pat_4 = [[0,0],[0,0]]
 
 
 
