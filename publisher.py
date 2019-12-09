@@ -35,23 +35,12 @@ def sendSequence(sequence):
     time.sleep(1)
 
 def LED(sequence):
-    payload = str(msg.payload)
-    global seat_num
-    global MAC
-    print(payload)
-    if payload[0] == "{":
-        print("I am in the { loop")
-        seat_assignment = dict(payload)
-        seat_num = int(seat_assignment[MAC])-1
-        print("Seat Number: "+str(seat_num))
-    else:
-        sequence = payload
-        print("Sequence Received : "+sequence)
-        print("LED: "+sequence[seat_num])
-        if sequence[seat_num] == "1":
-            GPIO.output(21,GPIO.HIGH)
-            time.sleep(1)
-            GPIO.output(21, GPIO.LOW)
+    seq = dict(sequence)
+    if seq[MAC] == "1":
+        time.sleep(0.01)
+        GPIO.output(21, GPIO.HIGH)
+        time.sleep(1)
+        GPIO.output(21, GPIO.LOW)
 
 def main():
     buildMappingFrom("MAC_info.txt", MAC_mapping)

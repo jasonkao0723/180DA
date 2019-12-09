@@ -32,9 +32,7 @@ def on_message(client, userdata, msg):
     payload = str(msg.payload)
     global seat_num 
     print(payload)
-    print("I am here")
     if payload[0] == "{":
-	print("I am in the { loop")
         seat_assignment = dict(payload)
         seat_num = int(seat_assignment[MAC])-1
         print("Seat Number: "+str(seat_num))
