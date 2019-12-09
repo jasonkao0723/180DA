@@ -32,6 +32,7 @@ def on_message(client, userdata, msg):
     if sequence[MAC] == "1":
       GPIO.output(21,GPIO.HIGH)
       time.sleep(3)
+      GPIO.output(21, GPIO.LOW)
 
 client = mqtt.Client()
 client.on_connect = on_connect

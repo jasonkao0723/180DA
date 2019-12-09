@@ -59,15 +59,19 @@ def buildSeatingMapFrom(filename, MAC_mapping, Seating): #From google form
 
 def sendSequence(sequence):
     publish.single(MQTT_PATH, sequence, hostname=MQTT_SERVER)
+    print("Pusblisher returns")
     time.sleep(3)
 
 def LED(sequence):
     seq = dict(sequence)
+    print("This pi's led is "+seq[MAC])
     if seq[MAC] == "1":
         GPIO.output(21, GPIO.HIGH)
         time.sleep(3)
+        GPIO.output(21, GPIO.LOW)
 
 def main():
+    print(MAC)
     buildMappingFrom("MAC_info.txt", MAC_mapping)
     buildSeatingMapFrom("Seating_info.txt", MAC_mapping, Seating)
     sequence1 = {Seating["1"]: "1", Seating["2"]: "0", Seating["3"]: "0"}
@@ -77,9 +81,9 @@ def main():
     seq2 = str(sequence2)
     seq3 = str(sequence3)
     pattern = [seq1, seq2, seq3]
-    print(pattern[0])
     while 1:
         for seq in pattern:
+            print(seq)
             t1 = threading.Thread(target=sendSequence, args=(seq,))
             t2 = threading.Thread(target=LED, args=(seq,))
             
