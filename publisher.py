@@ -64,6 +64,7 @@ def sendSequence(sequence):
 def LED(sequence):
     seq = dict(sequence)
     if seq[MAC] == "1":
+        time.sleep(0.01)
         GPIO.output(21, GPIO.HIGH)
         time.sleep(1)
         GPIO.output(21, GPIO.LOW)
@@ -89,15 +90,16 @@ def main():
     seq4 = str(sequence4)
     pattern = [seq1, seq2, seq3, seq4]
     start_pattern = [start_seq1, start_seq2]
-    start = 1
     while 1:
+        start = 1
         if start == 1:
+            time.sleep(1)
             for seq in start_pattern:
                 t1 = threading.Thread(target=sendSequence, args=(seq,))
                 t2 = threading.Thread(target=LED, args=(seq,))
                 t1.start()
                 t2.start()
-                time.sleep(3)
+                time.sleep(0.5)
                 t1.join()
                 t2.join()
             start = 0
@@ -107,8 +109,8 @@ def main():
             t1 = threading.Thread(target=sendSequence, args=(seq,))
             t2 = threading.Thread(target=LED, args=(seq,))
             
-            t1.start()
             t2.start()
+            t1.start()
             
             t1.join()
             t2.join()
