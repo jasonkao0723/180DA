@@ -16,25 +16,32 @@ MAC = subprocess.check_output(['hciconfig'], stdin=subprocess.PIPE)
 MAC = re.search('BD Address:(.*)ACL', MAC)
 MAC = MAC.group(1)
 MAC = MAC.strip()
-print(MAC)
-seat_assignment = {}
-start = 1
+
 seat_num = 0
 
+print(MAC)
 # The callback for when the client receives a connect response from the server.
 def on_connect(client, userdata, flags, rc):
-    print("Connected with result code "+str(rc))
     # on_connect() means that if we lose the connection and reconnect then subscriptions will be renewed.
     client.subscribe(MQTT_PATH)
+    print("Connected with result code "+str(rc))
+
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
-    if start == 1:
-        seat_assignment = dict(str(msg.payload))
+    payload = str(msg.payload)
+    global seat_num 
+    print(payload)
+    print("I am here")
+    if payload[0] == "{":
+	print("I am in the { loop")
+        seat_assignment = dict(payload)
         seat_num = int(seat_assignment[MAC])-1
-        start = 0
+        print("Seat Number: "+str(seat_num))
     else:
-        sequence = str(msg.payload)
+        sequence = payload
+        print("Sequence Received : "+sequence)
+        print("LED: "+sequence[seat_num])
         if sequence[seat_num] == "1":
             GPIO.output(21,GPIO.HIGH)
             time.sleep(1)
