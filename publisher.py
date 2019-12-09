@@ -107,5 +107,5 @@ def main():
 
 
 if __name__ == "__main__":
-    subprocess.call("python subscriber.py")
+    subprocess.call(["python", "subscriber.py"])
     main()
