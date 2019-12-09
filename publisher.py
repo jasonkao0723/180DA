@@ -60,14 +60,14 @@ def buildSeatingMapFrom(filename, MAC_mapping, Seating): #From google form
 def sendSequence(sequence):
     publish.single(MQTT_PATH, sequence, hostname=MQTT_SERVER)
     print("Pusblisher returns")
-    time.sleep(3)
+    time.sleep(1)
 
 def LED(sequence):
     seq = dict(sequence)
     print("This pi's led is "+seq[MAC])
     if seq[MAC] == "1":
         GPIO.output(21, GPIO.HIGH)
-        time.sleep(3)
+        time.sleep(1)
         GPIO.output(21, GPIO.LOW)
 
 def main():
