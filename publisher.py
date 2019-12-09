@@ -4,7 +4,7 @@ from ast import literal_eval as dict
 import RPi.GPIO as GPIO
 import subprocess
 import re
-
+import threading
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
@@ -40,7 +40,7 @@ def buildMappingFrom(filename, MAC_mapping): #Predetermined MAC Addresses and as
     for line in file:
         assignedIndx = search_num(line)
         mac_idx = line.find(',') + 1
-        MAC_mapping[] = line[mac_idx:]
+        MAC_mapping[assignedIndx] = line[mac_idx:mac_idx+17]
         
     file.close()
         
@@ -50,31 +50,34 @@ def buildSeatingMapFrom(filename, MAC_mapping, Seating): #From google form
     #Seat Number, MAC address mapping
     for line in file:
         seat_num = search_num(line)
-        indxOfMACIndx = str(line.find(',')+1)
-        Seating[search_num] = MAC_mapping[indxOfMACIndx]
+        indxOfMACIndx = (line.find(',')+1)
+        Seating[seat_num] = MAC_mapping[line[indxOfMACIndx]]
         
     file.close()
     
 
-sequence1 = {Seating["1"]: "1", Seating["2"]: "0", Seating["3"]: "0"}
-sequence2 = {Seating["1"]: "0", Seating["2"]: "1", Seating["3"]: "0"}
-sequence3 = {Seating["1"]: "0", Seating["2"]: "0", Seating["3"]: "1"}
-seq1 = str(sequence1)
-seq2 = str(sequence2)
-seq3 = str(sequence3)
-pattern = [seq1, seq2, seq3]
-
 
 def sendSequence(sequence):
-    publish.single(MQTT_PATH, seq, hostname=MQTT_SERVER)
+    publish.single(MQTT_PATH, sequence, hostname=MQTT_SERVER)
     time.sleep(3)
 
 def LED(sequence):
-    if dict(sequence)[MAC] == "1":
+    seq = dict(sequence)
+    if seq[MAC] == "1":
         GPIO.output(21, GPIO.HIGH)
         time.sleep(3)
 
 def main():
+    buildMappingFrom("MAC_info.txt", MAC_mapping)
+    buildSeatingMapFrom("Seating_info.txt", MAC_mapping, Seating)
+    sequence1 = {Seating["1"]: "1", Seating["2"]: "0", Seating["3"]: "0"}
+    sequence2 = {Seating["1"]: "0", Seating["2"]: "1", Seating["3"]: "0"}
+    sequence3 = {Seating["1"]: "0", Seating["2"]: "0", Seating["3"]: "1"}
+    seq1 = str(sequence1)
+    seq2 = str(sequence2)
+    seq3 = str(sequence3)
+    pattern = [seq1, seq2, seq3]
+    print(pattern[0])
     while 1:
         for seq in pattern:
             t1 = threading.Thread(target=sendSequence, args=(seq,))
@@ -93,4 +96,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()
