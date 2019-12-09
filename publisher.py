@@ -91,29 +91,14 @@ def main():
     pattern = [seq1, seq2, seq3, seq4]
     start_pattern = [start_seq1, start_seq2]
     while 1:
-        start = 1
-        if start == 1:
-            time.sleep(1)
-            for seq in start_pattern:
-                t1 = threading.Thread(target=sendSequence, args=(seq,))
-                t2 = threading.Thread(target=LED, args=(seq,))
-                t1.start()
-                t2.start()
-                time.sleep(0.5)
-                t1.join()
-                t2.join()
-            start = 0
-            
-
+        time.sleep(1)
+        for seq in start_pattern:
+            sendSequence(seq)
+        
+        
         for seq in pattern:
-            t1 = threading.Thread(target=sendSequence, args=(seq,))
-            t2 = threading.Thread(target=LED, args=(seq,))
-            
-            t2.start()
-            t1.start()
-            
-            t1.join()
-            t2.join()
+            sendSequence(seq)
+
             
 
 
@@ -122,5 +107,5 @@ def main():
 
 
 if __name__ == "__main__":
-
+    subprocess.call("python subscriber.py")
     main()
