@@ -23,6 +23,7 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     print(msg.topic+" "+str(msg.payload))
     GPIO.output(21,GPIO.HIGH)
+<<<<<<< HEAD
 	time.sleep(1)
 	GPIO.output(21,GPIO.LOW)
 	time.sleep(1)
@@ -60,6 +61,8 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     print(msg.topic+" "+str(msg.payload))
     GPIO.output(21,GPIO.HIGH)
+=======
+>>>>>>> 14d4be6fd403386fcd4cc5d85a9f3091fb394406
     time.sleep(1)
     GPIO.output(21,GPIO.LOW)
     time.sleep(1)
