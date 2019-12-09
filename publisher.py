@@ -59,31 +59,29 @@ def buildSeatingMapFrom(filename, MAC_mapping, Seating): #From google form
 
 def sendSequence(sequence):
     publish.single(MQTT_PATH, sequence, hostname=MQTT_SERVER)
-    print("Pusblisher returns")
     time.sleep(1)
 
 def LED(sequence):
     seq = dict(sequence)
-    print("This pi's led is "+seq[MAC])
     if seq[MAC] == "1":
         GPIO.output(21, GPIO.HIGH)
         time.sleep(1)
         GPIO.output(21, GPIO.LOW)
 
 def main():
-    print(MAC)
     buildMappingFrom("MAC_info.txt", MAC_mapping)
     buildSeatingMapFrom("Seating_info.txt", MAC_mapping, Seating)
-    sequence1 = {Seating["1"]: "1", Seating["2"]: "0", Seating["3"]: "0"}
-    sequence2 = {Seating["1"]: "0", Seating["2"]: "1", Seating["3"]: "0"}
-    sequence3 = {Seating["1"]: "0", Seating["2"]: "0", Seating["3"]: "1"}
+    sequence1 = {Seating["1"]: "1", Seating["2"]: "0", Seating["3"]: "0", Seating["4"]: "0"}
+    sequence2 = {Seating["1"]: "0", Seating["2"]: "1", Seating["3"]: "0", Seating["4"]: "0"}
+    sequence3 = {Seating["1"]: "0", Seating["2"]: "0", Seating["3"]: "1", Seating["4"]: "0"}
+    sequence4 = {Seating["1"]: "0", Seating["2"]: "0", Seating["3"]: "0", Seating["4"]: "1"}
     seq1 = str(sequence1)
     seq2 = str(sequence2)
     seq3 = str(sequence3)
-    pattern = [seq1, seq2, seq3]
+    seq4 = str(sequence4)
+    pattern = [seq1, seq2, seq3, seq4]
     while 1:
         for seq in pattern:
-            print(seq)
             t1 = threading.Thread(target=sendSequence, args=(seq,))
             t2 = threading.Thread(target=LED, args=(seq,))
             
