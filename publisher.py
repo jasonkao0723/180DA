@@ -89,10 +89,9 @@ def main():
     seq4 = str(sequence4)
     pattern = [seq1, seq2, seq3, seq4]
     start_pattern = [start_seq1, start_seq2]
-
+    start = 1
     while 1:
-        start = 1
-        if start ==1:
+        if start == 1:
             for seq in start_pattern:
                 t1 = threading.Thread(target=sendSequence, args=(seq,))
                 t2 = threading.Thread(target=LED, args=(seq,))
