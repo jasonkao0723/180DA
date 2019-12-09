@@ -23,7 +23,7 @@ def buildSeatingMapFrom(filename, MAC_mapping, Seating): #From google form
     for line in file:
         seat_num = search_num(line)
         indxOfMACIndx = (line.find(',')+1)
-        Seating[seat_num] = MAC_mapping[line[indxOfMACIndx]]
+        Seating[MAC_mapping[line[indxOfMACIndx]]] = seat_num
         
     file.close()
     
