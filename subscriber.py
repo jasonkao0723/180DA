@@ -16,7 +16,7 @@ MAC = subprocess.check_output(['hciconfig'], stdin=subprocess.PIPE)
 MAC = re.search('BD Address:(.*)ACL', MAC)
 MAC = MAC.group(1)
 MAC = MAC.strip()
-
+print(MAC)
 
 # The callback for when the client receives a connect response from the server.
 def on_connect(client, userdata, flags, rc):

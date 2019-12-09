@@ -71,6 +71,10 @@ def LED(sequence):
 def main():
     buildMappingFrom("MAC_info.txt", MAC_mapping)
     buildSeatingMapFrom("Seating_info.txt", MAC_mapping, Seating)
+    print("Seating: ")
+    print(Seating)
+    print("MAC mapping: ")
+    print(MAC_mapping)
     sequence1 = {Seating["1"]: "1", Seating["2"]: "0", Seating["3"]: "0", Seating["4"]: "0"}
     sequence2 = {Seating["1"]: "0", Seating["2"]: "1", Seating["3"]: "0", Seating["4"]: "0"}
     sequence3 = {Seating["1"]: "0", Seating["2"]: "0", Seating["3"]: "1", Seating["4"]: "0"}
@@ -82,6 +86,7 @@ def main():
     pattern = [seq1, seq2, seq3, seq4]
     while 1:
         for seq in pattern:
+            print(seq)
             t1 = threading.Thread(target=sendSequence, args=(seq,))
             t2 = threading.Thread(target=LED, args=(seq,))
             
