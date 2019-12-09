@@ -108,7 +108,7 @@ def main():
 
 if __name__ == "__main__":
     cmd = ["python", "subscriber.py"]
-    t1 = threading.Thread(target=subprocess.call, args(cmd,))
+    t1 = threading.Thread(target=subprocess.call, args=(cmd,))
     t2 = threading.Thread(target=main)
     
     t1.start()
