@@ -79,14 +79,32 @@ def main():
     sequence2 = {Seating["1"]: "0", Seating["2"]: "1", Seating["3"]: "0", Seating["4"]: "0"}
     sequence3 = {Seating["1"]: "0", Seating["2"]: "0", Seating["3"]: "1", Seating["4"]: "0"}
     sequence4 = {Seating["1"]: "0", Seating["2"]: "0", Seating["3"]: "0", Seating["4"]: "1"}
+    starting_sequence1  = {Seating["1"]: "1", Seating["2"]: "1", Seating["3"]: "1", Seating["4"]: "1"}
+    starting_sequence2  = {Seating["1"]: "0", Seating["2"]: "0", Seating["3"]: "0", Seating["4"]: "0"}
+    start_seq1 = str(starting_sequence1)
+    start_seq2 = str(starting_sequence2)
     seq1 = str(sequence1)
     seq2 = str(sequence2)
     seq3 = str(sequence3)
     seq4 = str(sequence4)
     pattern = [seq1, seq2, seq3, seq4]
+    start_pattern = [start_seq1, start_seq2]
+
     while 1:
+        start = 1
+        if start ==1:
+            for seq in start_pattern:
+                t1 = threading.Thread(target=sendSequence, args=(seq,))
+                t2 = threading.Thread(target=LED, args=(seq,))
+                t1.start()
+                t2.start()
+                time.sleep(3)
+                t1.join()
+                t2.join()
+            start = 0
+            
+
         for seq in pattern:
-            print(seq)
             t1 = threading.Thread(target=sendSequence, args=(seq,))
             t2 = threading.Thread(target=LED, args=(seq,))
             
