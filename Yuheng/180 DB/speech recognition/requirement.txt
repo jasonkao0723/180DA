@@ -1,0 +1,5 @@
+pip install SpeechRecognition
+pip install gTTS
+pip install python-vlc
+pip install pipwin
+pipwin install pyaudio
