@@ -80,7 +80,8 @@ THRESH_GYRO = 300
 STATIC_ACCEL = 300
 THRESH_ACCEL = 1000
 isReady = 0
-
+isReload = 0
+LOAD_ACCEL = 100
 #MQTT communication
 MQTT_SERVER = "192.168.0.9" # same mosquitto server ip. 
 MQTT_PATH = "hello/world" # same topic
@@ -364,6 +365,15 @@ while True:
     if abs(ACCx) < STATIC_ACCEL and ACCy > THRESH_ACCEL and abs(ACCz) < STATIC_ACCEL:
         print("Aimed!!")
         isReady = 1
+    if abs(ACCy) < STATIC_ACCEL and ACCx > THRESH_ACCEL and abs(ACCz) < STATIC_ACCEL:
+        print("Reload READY!!")
+        isReload = 1
+        print(ACCx - 1000)
+
+    if isReload == 1 and abs(ACCy) < STATIC_ACCEL and abs(ACCz) < STATIC_ACCEL and (ACCx - 1000) < LOAD_ACCEL:
+        print("RELOADED!!!!!!!!!!!")
+        publish.single(MQTT_PATH, "110", hostname=MQTT_SERVER)
+        isReload = 0
 
     ######################################### 
     #### Median filter for magnetometer ####
@@ -403,7 +413,7 @@ while True:
 
     if isReady == 1 and abs(rate_gyr_x) < STATIC_GYRO and abs(rate_gyr_y) < STATIC_GYRO and rate_gyr_z > THRESH_GYRO :
         print("Gesture detected!!!!")
-        publish.single(MQTT_PATH, "Hello World!", hostname=MQTT_SERVER)
+        publish.single(MQTT_PATH, "101", hostname=MQTT_SERVER)
         isReady = 0
 
 
@@ -539,15 +549,17 @@ while True:
 
     if guess["transcription"].lower() == "fire":
         print("000")
-    if guess["transcription"].lower() == "start":
-        print("001")
+        publish.single(MQTT_PATH, "000", hostname=MQTT_SERVER)
     if guess["transcription"].lower() == "armor":
-        print("010")
+        print("001")
+        publish.single(MQTT_PATH, "001", hostname=MQTT_SERVER)
     if guess["transcription"].lower() == "explode":
-        print("011")
+        print("010")
+        publish.single(MQTT_PATH, "010", hostname=MQTT_SERVER)
     if guess["transcription"].lower() == "antibiotic":
-        print("100")
+        print("011")
+        publish.single(MQTT_PATH, "011", hostname=MQTT_SERVER)
     if guess["transcription"].lower() == "surrender":
-        print("101")
-
+        print("100")
+        publish.single(MQTT_PATH, "100", hostname=MQTT_SERVER)
 
