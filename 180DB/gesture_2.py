@@ -1,3 +1,5 @@
+
+
 #!/usr/bin/python
 #
 #    This program  reads the angles from the acceleromter, gyrscope
@@ -26,7 +28,8 @@ import os
 import paho.mqtt.publish as publish
 # If the IMU is upside down (Skull logo facing up), change this value to 1
 IMU_UPSIDE_DOWN = 0	
-
+ 
+datetimeFormat = '%Y-%m-%d %H:%M:%S.%f'
 
 RAD_TO_DEG = 57.29578
 M_PI = 3.14159265358979323846
@@ -40,11 +43,16 @@ STATIC_GYRO = 150
 THRESH_GYRO = 300
 STATIC_ACCEL = 300
 THRESH_ACCEL = 1000
+THRESH_ACCEL_2 = 1300
+SUPER_GYRO = -400
 isReady = 0
 isReload = 0
-LOAD_ACCEL = 100
+superReady = 0
+Ready = 0
+gestureFirst = 0
+LOAD_ACCEL = 300
 #MQTT communication
-MQTT_SERVER = "192.168.0.19" # same mosquitto server ip. 
+MQTT_SERVER = "192.168.1.19" # same mosquitto server ip. 
 MQTT_PATH = "hello/world" # same topic
 
 ################# Compass Calibration values ############
@@ -226,7 +234,8 @@ while True:
     b = datetime.datetime.now() - a
     a = datetime.datetime.now()
     LP = b.microseconds/(1000000*1.0)
-    print "Loop Time | %5.2f|" % ( LP ),
+   # print "Loop Time | %5.2f|" % ( LP ),
+
 
 
 
@@ -280,14 +289,16 @@ while True:
         print("Aimed!!")
         isReady = 1
 
-    if abs(ACCy) < STATIC_ACCEL and ACCx > THRESH_ACCEL and abs(ACCz) < STATIC_ACCEL:
-        print("Reload READY!!")
+    if isReload == 0 and abs(ACCy) < STATIC_ACCEL and ACCx > THRESH_ACCEL_2 and abs(ACCz) < STATIC_ACCEL:
+        print("Reloading...")
         isReload = 1
-        print(ACCx - 1000)
 
     if isReload == 1 and abs(ACCy) < STATIC_ACCEL and abs(ACCz) < STATIC_ACCEL and (ACCx - 1000) < LOAD_ACCEL:
-         print("RELOADED!!!!!!!!!!!")
-         isReload = 0
+        print("RELOADED!!")
+        isReload = 0
+        time.sleep(2)
+        #publish.single(MQTT_PATH, "2", hostname=MQTT_SERVER)
+
     ######################################### 
     #### Median filter for magnetometer ####
     #########################################
@@ -324,12 +335,33 @@ while True:
     rate_gyr_y =  GYRy * G_GAIN
     rate_gyr_z =  GYRz * G_GAIN
 
-    if isReady == 1 and abs(rate_gyr_x) < STATIC_GYRO and abs(rate_gyr_y) < STATIC_GYRO and rate_gyr_z > THRESH_GYRO :
+
+    if isReady == 1 and superReady == 0 and abs(rate_gyr_x) < STATIC_GYRO and abs(rate_gyr_y) < STATIC_GYRO and rate_gyr_z > THRESH_GYRO:
         print("Gesture detected!!!!")
-        publish.single(MQTT_PATH, "Hello World!", hostname=MQTT_SERVER)
+        #publish.single(MQTT_PATH, "1", hostname=MQTT_SERVER)
         isReady = 0
+        time.sleep(1)
+    if isReady == 1 and rate_gyr_x > THRESH_GYRO and abs(rate_gyr_y) < STATIC_GYRO and abs(rate_gyr_z) < STATIC_GYRO:
+        t_1 = datetime.datetime.now()
+        print(t_1)
+        superReady = 1 
 
+    if superReady == 1 and rate_gyr_x < SUPER_GYRO and abs(rate_gyr_y) < STATIC_GYRO and abs(rate_gyr_z) < STATIC_GYRO:
+        t_2 = datetime.datetime.now()
+        diff = t_2 - t_1
+        print("Seconds:", diff.seconds)
+        if(diff.seconds > 2):
+            Ready = 1
+            print("READY TO SUPERSHOT")
+        else:
+            superReady = 0
 
+    if isReady == 1 and Ready == 1 and abs(rate_gyr_x) < STATIC_GYRO and abs(rate_gyr_y) < STATIC_GYRO and rate_gyr_z > THRESH_GYRO :
+        print("SUPERSHOTTTTTTT")
+        isReady = 0
+        Ready = 0
+        superReady = 0
+        #publish.single(MQTT_PATH, "3", hostname=MQTT_SERVER)
     #Calculate the angles from the gyro. 
     gyroXangle+=rate_gyr_x*LP
     gyroYangle+=rate_gyr_y*LP
@@ -415,31 +447,30 @@ while True:
                 tiltCompensatedHeading += 360
 
     ############################ END ##################################
-    if 1:           #Change to '0' to stop showing the angles from the accelerometer
+    if 0:           #Change to '0' to stop showing the angles from the accelerometer
         print ("# ACCX %5.2f ACCY %5.2f # ACCZ %5.2f " % (ACCx, ACCy, ACCz)),
 
-    if 1:           #Change to '0' to stop  showing the angles from the gyro
+    if 0:           #Change to '0' to stop  showing the angles from the gyro
         print ("\t# GRYX %5.2f  GYRY %5.2f  GYRZ %5.2f # " % (rate_gyr_x,rate_gyr_y,rate_gyr_z)),
 
 
-   # if 1:			#Change to '0' to stop showing the angles from the accelerometer
-    #    print ("# ACCX Angle %5.2f ACCY Angle %5.2f #  " % (AccXangle, AccYangle)),
+    if 0:			#Change to '0' to stop showing the angles from the accelerometer
+        print ("# ACCX Angle %5.2f ACCY Angle %5.2f #  " % (AccXangle, AccYangle)),
 
-   # if 1:			#Change to '0' to stop  showing the angles from the gyro
-    #    print ("\t# GRYX Angle %5.2f  GYRY Angle %5.2f  GYRZ Angle %5.2f # " % (gyroXangle,gyroYangle,gyroZangle)),
+    if 0:			#Change to '0' to stop  showing the angles from the gyro
+        print ("\t# GRYX Angle %5.2f  GYRY Angle %5.2f  GYRZ Angle %5.2f # " % (gyroXangle,gyroYangle,gyroZangle)),
 
-   # if 1:			#Change to '0' to stop  showing the angles from the complementary filter
-    #    print ("\t# CFangleX Angle %5.2f   CFangleY Angle %5.2f #" % (CFangleX,CFangleY)),
-        
-   # if 1:			#Change to '0' to stop  showing the heading
-    #    print ("\t# HEADING %5.2f  tiltCompensatedHeading %5.2f #" % (heading,tiltCompensatedHeading)),
-        
-   # if 1:			#Change to '0' to stop  showing the angles from the Kalman filter
-      #  print ("# kalmanX %5.2f   kalmanY %5.2f #" % (kalmanX,kalmanY)),
+    if 0:			#Change to '0' to stop  showing the angles from the complementary filter
+        print ("\t# CFangleX Angle %5.2f   CFangleY Angle %5.2f #" % (CFangleX,CFangleY)),
+
+    if 0:			#Change to '0' to stop  showing the heading
+        print ("\t# HEADING %5.2f  tiltCompensatedHeading %5.2f #" % (heading,tiltCompensatedHeading)),
+
+    if 1:			#Change to '0' to stop  showing the angles from the Kalman filter
+        print ("# kalmanX %5.2f   kalmanY %5.2f #" % (kalmanX,kalmanY)),
 
     #print a new line
-    print ""  
-
+    print ""
 
     #slow program down a bit, makes the output more readable
     time.sleep(0.05)
