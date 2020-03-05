@@ -1,0 +1,288 @@
+
+
+#!/usr/bin/python
+#
+#    This program  reads the angles from the acceleromter, gyrscope
+#    and mangnetometeron a BerryIMU connected to a Raspberry Pi.
+#
+#    This program includes two filters (low pass and mdeian) to improve the 
+#    values returned from BerryIMU by reducing noise.
+#
+#
+#    http://ozzmaker.com/
+#    Both the BerryIMUv1 and BerryIMUv2 are supported
+#
+#    BerryIMUv1 uses LSM9DS0 IMU
+#    BerryIMUv2 uses LSM9DS1 IMU
+#
+
+
+
+import numpy as np
+import time
+import IMU
+
+def Run():
+    G_GAIN = 0.070  	# [deg/s/LSB]  If you change the dps for gyro, you need to update this value accordingly
+    ACC_LPF_FACTOR = 0.4 	# Low pass filter constant for accelerometer
+    ACC_MEDIANTABLESIZE = 9    	# Median filter table size for accelerometer. Higher = smoother but a longer delay
+    MAG_MEDIANTABLESIZE = 9    	# Median filter table size for magnetometer. Higher = smoother but a longer delay
+
+
+    oldXAccRawValue = 0
+    oldYAccRawValue = 0
+    oldZAccRawValue = 0
+
+
+
+    #Setup the tables for the mdeian filter. Fill them all with '1' so we dont get devide by zero error
+    acc_medianTable1X = [1] * ACC_MEDIANTABLESIZE
+    acc_medianTable1Y = [1] * ACC_MEDIANTABLESIZE
+    acc_medianTable1Z = [1] * ACC_MEDIANTABLESIZE
+
+
+
+    cnt = 0
+    cnt2 = 11
+    file = open("OutputReload.csv", 'a')
+    difference = 0
+    time.sleep(1)
+    print('ready')
+
+    a = time.time()
+
+    values = np.zeros([1,6])
+
+    while difference  <  2:
+
+        #Read the accelerometer,gyroscope and magnetometer values
+        ACCx = IMU.readACCx()
+        ACCy = IMU.readACCy()
+        ACCz = IMU.readACCz()
+        GYRx = IMU.readGYRx()
+        GYRy = IMU.readGYRy()
+        GYRz = IMU.readGYRz()
+
+
+
+        ###############################################
+        #### Apply low pass filter ####
+        ###############################################
+
+        ACCx =  ACCx  * ACC_LPF_FACTOR + oldXAccRawValue*(1 - ACC_LPF_FACTOR);
+        ACCy =  ACCy  * ACC_LPF_FACTOR + oldYAccRawValue*(1 - ACC_LPF_FACTOR);
+        ACCz =  ACCz  * ACC_LPF_FACTOR + oldZAccRawValue*(1 - ACC_LPF_FACTOR);
+
+
+        oldXAccRawValue = ACCx
+        oldYAccRawValue = ACCy
+        oldZAccRawValue = ACCz
+
+        #########################################
+        #### Median filter for accelerometer ####
+        #########################################
+        # cycle the table
+        for x in range (ACC_MEDIANTABLESIZE-1,0,-1 ):
+            acc_medianTable1X[x] = acc_medianTable1X[x-1]
+            acc_medianTable1Y[x] = acc_medianTable1Y[x-1]
+            acc_medianTable1Z[x] = acc_medianTable1Z[x-1]
+
+        # Insert the lates values
+        acc_medianTable1X[0] = ACCx
+        acc_medianTable1Y[0] = ACCy
+        acc_medianTable1Z[0] = ACCz
+
+        # Copy the tables
+        acc_medianTable2X = acc_medianTable1X[:]
+        acc_medianTable2Y = acc_medianTable1Y[:]
+        acc_medianTable2Z = acc_medianTable1Z[:]
+
+        # Sort table 2
+        acc_medianTable2X.sort()
+        acc_medianTable2Y.sort()
+        acc_medianTable2Z.sort()
+
+        # The middle value is the value we are interested in
+        ACCx = acc_medianTable2X[ACC_MEDIANTABLESIZE/2];
+        ACCy = acc_medianTable2Y[ACC_MEDIANTABLESIZE/2];
+        ACCz = acc_medianTable2Z[ACC_MEDIANTABLESIZE/2];
+
+        #Convert Gyro raw to degrees per second
+        rate_gyr_x =  GYRx * G_GAIN
+        rate_gyr_y =  GYRy * G_GAIN
+        rate_gyr_z =  GYRz * G_GAIN
+
+
+
+        if cnt > 11:
+            new_val = np.array([[ACCx, ACCy, ACCz, rate_gyr_x, rate_gyr_y, rate_gyr_z]])
+            values = np.concatenate((values, new_val), axis=0)
+        cnt += 1
+        ############################ END ##################################
+        ref = time.time()
+        difference = float(ref - a)
+
+    values = values[4:,:]
+    idx = values[:,0]
+    idx = np.argmin(idx)
+    values = values[idx,:].reshape(-1)
+    string = ",".join(['%.5f' % num for num in values])
+    print(string)
+    file.write(string)
+    file.write('\n')
+
+    file.close()
+
+
+
+def RunNegative():
+    G_GAIN = 0.070  # [deg/s/LSB]  If you change the dps for gyro, you need to update this value accordingly
+    ACC_LPF_FACTOR = 0.4  # Low pass filter constant for accelerometer
+    ACC_MEDIANTABLESIZE = 9  # Median filter table size for accelerometer. Higher = smoother but a longer delay
+    MAG_MEDIANTABLESIZE = 9  # Median filter table size for magnetometer. Higher = smoother but a longer delay
+
+    oldXAccRawValue = 0
+    oldYAccRawValue = 0
+    oldZAccRawValue = 0
+
+    # Setup the tables for the mdeian filter. Fill them all with '1' so we dont get devide by zero error
+    acc_medianTable1X = [1] * ACC_MEDIANTABLESIZE
+    acc_medianTable1Y = [1] * ACC_MEDIANTABLESIZE
+    acc_medianTable1Z = [1] * ACC_MEDIANTABLESIZE
+
+    cnt = 0
+    file = open("OutputNegative.csv", 'a')
+    difference = 0
+    time.sleep(1)
+    print('ready')
+
+    a = time.time()
+
+    values = np.zeros([1, 6])
+
+    while difference < 2:
+
+        # Read the accelerometer,gyroscope and magnetometer values
+        ACCx = IMU.readACCx()
+        ACCy = IMU.readACCy()
+        ACCz = IMU.readACCz()
+        GYRx = IMU.readGYRx()
+        GYRy = IMU.readGYRy()
+        GYRz = IMU.readGYRz()
+
+        ###############################################
+        #### Apply low pass filter ####
+        ###############################################
+
+        ACCx = ACCx * ACC_LPF_FACTOR + oldXAccRawValue * (1 - ACC_LPF_FACTOR);
+        ACCy = ACCy * ACC_LPF_FACTOR + oldYAccRawValue * (1 - ACC_LPF_FACTOR);
+        ACCz = ACCz * ACC_LPF_FACTOR + oldZAccRawValue * (1 - ACC_LPF_FACTOR);
+
+        oldXAccRawValue = ACCx
+        oldYAccRawValue = ACCy
+        oldZAccRawValue = ACCz
+
+        #########################################
+        #### Median filter for accelerometer ####
+        #########################################
+        # cycle the table
+        for x in range(ACC_MEDIANTABLESIZE - 1, 0, -1):
+            acc_medianTable1X[x] = acc_medianTable1X[x - 1]
+            acc_medianTable1Y[x] = acc_medianTable1Y[x - 1]
+            acc_medianTable1Z[x] = acc_medianTable1Z[x - 1]
+
+        # Insert the lates values
+        acc_medianTable1X[0] = ACCx
+        acc_medianTable1Y[0] = ACCy
+        acc_medianTable1Z[0] = ACCz
+
+        # Copy the tables
+        acc_medianTable2X = acc_medianTable1X[:]
+        acc_medianTable2Y = acc_medianTable1Y[:]
+        acc_medianTable2Z = acc_medianTable1Z[:]
+
+        # Sort table 2
+        acc_medianTable2X.sort()
+        acc_medianTable2Y.sort()
+        acc_medianTable2Z.sort()
+
+        # The middle value is the value we are interested in
+        ACCx = acc_medianTable2X[ACC_MEDIANTABLESIZE / 2];
+        ACCy = acc_medianTable2Y[ACC_MEDIANTABLESIZE / 2];
+        ACCz = acc_medianTable2Z[ACC_MEDIANTABLESIZE / 2];
+
+        # Convert Gyro raw to degrees per second
+        rate_gyr_x = GYRx * G_GAIN
+        rate_gyr_y = GYRy * G_GAIN
+        rate_gyr_z = GYRz * G_GAIN
+
+        if cnt > 11:
+            new_val = np.array([ACCx, ACCy, ACCz, rate_gyr_x, rate_gyr_y, rate_gyr_z])
+            string = ",".join(['%.5f' % num for num in new_val])
+            print(string)
+            file.write(string)
+            file.write('\n')
+        cnt += 1
+        if cnt == 611:
+            break;
+        ############################ END ##################################
+        ref = time.time()
+        difference = float(ref - a)
+
+    file.close()
+
+
+Last login: Tue Mar  3 19:38:00 on ttys001
+jasonkao@Jasons-MacBook-Pro ~ % -bash
+zsh: command not found: -bash
+jasonkao@Jasons-MacBook-Pro ~ % mosquitto_pub -t "RPi1Command" -m "1"
+jasonkao@Jasons-MacBook-Pro ~ % mosquitto_pub -t "RPi1Command" -m "1"
+jasonkao@Jasons-MacBook-Pro ~ % mosquitto_pub -t "RPi1Command" -m "1"
+jasonkao@Jasons-MacBook-Pro ~ % mosquitto_pub -t "RPi1Command" -m "1"
+jasonkao@Jasons-MacBook-Pro ~ % mosquitto_pub -t "RPi1Command" -m "1"
+jasonkao@Jasons-MacBook-Pro ~ % mosquitto_pub -t "RPi1Command" -m "1"
+jasonkao@Jasons-MacBook-Pro ~ % mosquitto_pub -t "RPi1Command" -m "1"
+jasonkao@Jasons-MacBook-Pro ~ % mosquitto_pub -t "RPi1Command" -m "1"
+jasonkao@Jasons-MacBook-Pro ~ % mosquitto_pub -t "RPi1Command" -m "1"
+jasonkao@Jasons-MacBook-Pro ~ % mosquitto_pub -t "RPi1Command" -m "1"
+jasonkao@Jasons-MacBook-Pro ~ % mosquitto_pub -t "RPi1Command" -m "1"
+jasonkao@Jasons-MacBook-Pro ~ % nano 
+jasonkao@Jasons-MacBook-Pro ~ % 
+jasonkao@Jasons-MacBook-Pro ~ % ssh pi@192.168.1.16                  
+pi@192.168.1.16's password: 
+Linux raspberrypi 4.19.66+ #1253 Thu Aug 15 11:37:30 BST 2019 armv6l
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+Last login: Wed Mar  4 09:38:22 2020 from fe80::4b6:ebc4:1c34:e1ea%wlan0
+B8:27:EB:11:41:27
+Network is Ready!
+192.168.1.16
+Successfully send the e-mail.
+pi@raspberrypi:~ $ ls
+180DA       publisher.py                                tensorflow    test_speech_mqtt.py
+BerryIMU    python-BerryIMU-gryo-accel-compass-filters  test
+Collect.py  reportip.py                                 test_gpio.py
+pi@raspberrypi:~ $ docker run --rm hello-world
+-bash: docker: command not found
+pi@raspberrypi:~ $ curl -sSL https://get.docker.com | sh
+# Executing docker install script, commit: f45d7c11389849ff46a6b4d94e0dd1ffebca32c1
++ sudo -E sh -c apt-get update -qq >/dev/null
++ sudo -E sh -c DEBIAN_FRONTEND=noninteractive apt-get install -y -qq apt-transport-https ca-certificates curl >/dev/null
++ sudo -E sh -c curl -fsSL "https://download.docker.com/linux/raspbian/gpg" | apt-key add -qq - >/dev/null
+Warning: apt-key output should not be parsed (stdout is not a terminal)
++ sudo -E sh -c echo "deb [arch=armhf] https://download.docker.com/linux/raspbian stretch stable" > /etc/apt/sources.list.d/docker.list
++ sudo -E sh -c apt-get update -qq >/dev/null
++ [ -n  ]
++ sudo -E sh -c apt-get install -y -qq --no-install-recommends docker-ce >/dev/null
++ sudo -E sh -c docker version
+Client: Docker Engine - Community
+ Version:           19.03.7
+ API version:       1.40
+ Go version:        go1.12.17
+ Git commit:        7141c19
+

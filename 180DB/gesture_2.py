@@ -40,11 +40,11 @@ ACC_LPF_FACTOR = 0.4 	# Low pass filter constant for accelerometer
 ACC_MEDIANTABLESIZE = 9    	# Median filter table size for accelerometer. Higher = smoother but a longer delay
 MAG_MEDIANTABLESIZE = 9    	# Median filter table size for magnetometer. Higher = smoother but a longer delay
 STATIC_GYRO = 150
-THRESH_GYRO = 300
-STATIC_ACCEL = 300
+THRESH_GYRO = 200
+STATIC_ACCEL = 500
 THRESH_ACCEL = 1000
 THRESH_ACCEL_2 = 1300
-SUPER_GYRO = -400
+SUPER_GYRO = -200
 isReady = 0
 isReload = 0
 superReady = 0
@@ -52,8 +52,8 @@ Ready = 0
 gestureFirst = 0
 LOAD_ACCEL = 300
 #MQTT communication
-MQTT_SERVER = "192.168.1.19" # same mosquitto server ip. 
-MQTT_PATH = "hello/world" # same topic
+MQTT_SERVER = "192.168.31.238" # same mosquitto server ip. 
+MQTT_PATH = "RPi1Command" # same topic
 
 ################# Compass Calibration values ############
 # Use calibrateBerryIMU.py to get calibration values 
@@ -296,10 +296,9 @@ while True:
     if isReload == 1 and abs(ACCy) < STATIC_ACCEL and abs(ACCz) < STATIC_ACCEL and (ACCx - 1000) < LOAD_ACCEL:
         print("RELOADED!!")
         isReload = 0
-        time.sleep(2)
-        #publish.single(MQTT_PATH, "2", hostname=MQTT_SERVER)
-
-    ######################################### 
+        #publish.single(MQTT_PATH, "2", hostname=MQTT_SERVER, qos=2)
+        time.sleep(2) 
+    #########################################
     #### Median filter for magnetometer ####
     #########################################
     # cycle the table
@@ -338,7 +337,7 @@ while True:
 
     if isReady == 1 and superReady == 0 and abs(rate_gyr_x) < STATIC_GYRO and abs(rate_gyr_y) < STATIC_GYRO and rate_gyr_z > THRESH_GYRO:
         print("Gesture detected!!!!")
-        #publish.single(MQTT_PATH, "1", hostname=MQTT_SERVER)
+        #publish.single(MQTT_PATH, "1", hostname=MQTT_SERVER, qos=2)
         isReady = 0
         time.sleep(1)
     if isReady == 1 and rate_gyr_x > THRESH_GYRO and abs(rate_gyr_y) < STATIC_GYRO and abs(rate_gyr_z) < STATIC_GYRO:
@@ -361,7 +360,8 @@ while True:
         isReady = 0
         Ready = 0
         superReady = 0
-        #publish.single(MQTT_PATH, "3", hostname=MQTT_SERVER)
+        #publish.single(MQTT_PATH, "3", hostname=MQTT_SERVER, qos=2)
+        time.sleep(2)
     #Calculate the angles from the gyro. 
     gyroXangle+=rate_gyr_x*LP
     gyroYangle+=rate_gyr_y*LP
@@ -447,10 +447,10 @@ while True:
                 tiltCompensatedHeading += 360
 
     ############################ END ##################################
-    if 0:           #Change to '0' to stop showing the angles from the accelerometer
+    if 1:           #Change to '0' to stop showing the angles from the accelerometer
         print ("# ACCX %5.2f ACCY %5.2f # ACCZ %5.2f " % (ACCx, ACCy, ACCz)),
 
-    if 0:           #Change to '0' to stop  showing the angles from the gyro
+    if 1:           #Change to '0' to stop  showing the angles from the gyro
         print ("\t# GRYX %5.2f  GYRY %5.2f  GYRZ %5.2f # " % (rate_gyr_x,rate_gyr_y,rate_gyr_z)),
 
 
@@ -466,7 +466,7 @@ while True:
     if 0:			#Change to '0' to stop  showing the heading
         print ("\t# HEADING %5.2f  tiltCompensatedHeading %5.2f #" % (heading,tiltCompensatedHeading)),
 
-    if 1:			#Change to '0' to stop  showing the angles from the Kalman filter
+    if 0:			#Change to '0' to stop  showing the angles from the Kalman filter
         print ("# kalmanX %5.2f   kalmanY %5.2f #" % (kalmanX,kalmanY)),
 
     #print a new line
