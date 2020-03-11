@@ -43,17 +43,17 @@ STATIC_GYRO = 150
 THRESH_GYRO = 200
 STATIC_ACCEL = 500
 THRESH_ACCEL = 1000
-THRESH_ACCEL_2 = 1300
+THRESH_ACCEL_2 = 1000
 SUPER_GYRO = -200
 isReady = 0
 isReload = 0
 superReady = 0
 Ready = 0
 gestureFirst = 0
-LOAD_ACCEL = 300
+LOAD_ACCEL = 0
 #MQTT communication
-MQTT_SERVER = "192.168.31.238" # same mosquitto server ip. 
-MQTT_PATH = "RPi1Command" # same topic
+MQTT_SERVER = "192.168.31.243" # same mosquitto server ip. 
+MQTT_PATH = "RPi1CommandPlayer1" # same topic
 
 ################# Compass Calibration values ############
 # Use calibrateBerryIMU.py to get calibration values 
@@ -289,7 +289,7 @@ while True:
         print("Aimed!!")
         isReady = 1
 
-    if isReload == 0 and abs(ACCy) < STATIC_ACCEL and ACCx > THRESH_ACCEL_2 and abs(ACCz) < STATIC_ACCEL:
+    if isReload == 0 and abs(ACCy) < STATIC_ACCEL and ACCx > THRESH_ACCEL and abs(ACCz) < STATIC_ACCEL:
         print("Reloading...")
         isReload = 1
 
@@ -349,7 +349,7 @@ while True:
         t_2 = datetime.datetime.now()
         diff = t_2 - t_1
         print("Seconds:", diff.seconds)
-        if(diff.seconds > 2):
+        if(diff.seconds > 1):
             Ready = 1
             print("READY TO SUPERSHOT")
         else:
@@ -473,6 +473,6 @@ while True:
     print ""
 
     #slow program down a bit, makes the output more readable
-    time.sleep(0.05)
+    time.sleep(0.01)
 
 

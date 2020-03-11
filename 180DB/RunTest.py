@@ -10,7 +10,7 @@ print("Libraries loaded")
 
 MQTT_SERVER = "192.168.1.13"
 MQTT_TOPIC = "RPiCommand"
-model = tf.keras.models.load_model("Command_0_1050.h5")
+model = tf.keras.models.load_model("Command_reload_new_gesture.h5")
 print("Model loaded")
 
 IMU.detectIMU()  # Detect if BerryIMUv1 or BerryIMUv2 is connected.
@@ -40,7 +40,7 @@ def GetData():
     res = 2
     val = np.zeros([1,6])
     cnt = 0
-    while cnt < 175:
+    while cnt < 250:
 
 
         # Read the accelerometer,gyroscope and magnetometer values
@@ -103,7 +103,7 @@ def GetData():
         val = np.concatenate((val,new_val), axis=0)
         cnt = cnt + 1
 
-    val = val[:1050]
+    val = val[:1500]
     return val
 
 def main():

@@ -107,7 +107,7 @@ def CollectDataOver(seconds, forData, label):
     file.close()
 
 
-def Run(key='Charge', seconds=2):
+def Run(key='Reload', seconds=2):
     dataTypes = {'Shoot': ('Shoot', '1'), 'Reload': ('Reload','2'), 'Charge': ('Charge','3'), 'Negative': ('Negative', 0)}
     print('Ready to collect data')
     cnt = 0
