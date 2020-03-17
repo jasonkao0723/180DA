@@ -1,0 +1,4 @@
+armor 4
+explode 5
+antibiotic 6 
+surrender 7
